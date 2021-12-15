@@ -9,6 +9,7 @@ stdColor = "#222222";
 
 let map = [];
 let score = 0;
+let isGameOver = false;
 
 blocks = [
   [
@@ -143,10 +144,17 @@ function updateMap() {
 function newMainBlock() {
   let rand = Math.floor(Math.random() * blocks.length);
   let shape = blocks[rand];
-  let x = 5;
+  let x = 3;
   let y = 0;
   let color = colors[rand];
   mainBlockId = createObject(x, y, shape, color);
+
+  if (!checkPossibleMoveY(x, y, shape)) {
+    isGameOver = true;
+    gameOver = document.getElementById("game-over");
+    gameOver.innerHTML = "Game Over <br> <button class='btn btn-primary' onclick='startGame()'>Restart</button>";
+    clearInterval(dropIntv);
+  }
 }
 
 dropIntv = 0;
@@ -160,6 +168,9 @@ function startGame() {
     }
   }
   objects = [];
+  gameOver = document.getElementById("game-over");
+  gameOver.innerHTML = "";
+  isGameOver = false;
   newMainBlock();
   dropIntv = setInterval(dropMainBlock, 1000 * 0.75);
 }
@@ -300,59 +311,61 @@ function checkPossibleMoveX(move) {
 }
 
 document.addEventListener("keydown", function (event) {
-  if (event.keyCode == 37) {
-    let obj = readObject(mainBlockId);
-    let lowestShapeX = obj.shape.length;
-    for (let i = 0; i < obj.shape.length; i++) {
-      for (let j = 0; j < obj.shape[i].length; j++) {
-        if (obj.shape[i][j] == 1) {
-          if (lowestShapeX > i) {
-            lowestShapeX = i;
+  if (!isGameOver) {
+    if (event.keyCode == 37) {
+      let obj = readObject(mainBlockId);
+      let lowestShapeX = obj.shape.length;
+      for (let i = 0; i < obj.shape.length; i++) {
+        for (let j = 0; j < obj.shape[i].length; j++) {
+          if (obj.shape[i][j] == 1) {
+            if (lowestShapeX > i) {
+              lowestShapeX = i;
+            }
           }
         }
       }
-    }
-    if (obj.x+lowestShapeX > 0 && checkPossibleMoveX(-1)) {
-      obj.x -= 1;
-      writeObject(mainBlockId, obj);
-    }
-  } else if (event.keyCode == 39) {
-    let obj = readObject(mainBlockId);
-    let highestShapeX = 0;
-    for (let i = 0; i < obj.shape.length; i++) {
-      for (let j = 0; j < obj.shape[i].length; j++) {
-        if (obj.shape[i][j] == 1) {
-          if (highestShapeX < i) {
-            highestShapeX = i;
+      if (obj.x+lowestShapeX > 0 && checkPossibleMoveX(-1)) {
+        obj.x -= 1;
+        writeObject(mainBlockId, obj);
+      }
+    } else if (event.keyCode == 39) {
+      let obj = readObject(mainBlockId);
+      let highestShapeX = 0;
+      for (let i = 0; i < obj.shape.length; i++) {
+        for (let j = 0; j < obj.shape[i].length; j++) {
+          if (obj.shape[i][j] == 1) {
+            if (highestShapeX < i) {
+              highestShapeX = i;
+            }
           }
         }
       }
-    }
-    if (obj.x+highestShapeX < cw / tileSize - 1 && checkPossibleMoveX(1)) {
-      obj.x += 1;
-      writeObject(mainBlockId, obj);
-    }
-  } else if (event.keyCode == 40) {
-    dropMainBlock();
-  } else if (event.keyCode == 38) {
-    let obj = readObject(mainBlockId);
-    let newShape = rotateShape(obj.shape);
-    let validRot = true;
-    for (let i = 0; i < newShape.length; i++) {
-      for (let j = 0; j < newShape[i].length; j++) {
-        if (newShape[i][j] == 1) {
-          if (obj.x + i < 0 || obj.x + i >= cw / tileSize || obj.y + j >= ch / tileSize) {
-            validRot = false;
-            break;
+      if (obj.x+highestShapeX < cw / tileSize - 1 && checkPossibleMoveX(1)) {
+        obj.x += 1;
+        writeObject(mainBlockId, obj);
+      }
+    } else if (event.keyCode == 40) {
+      dropMainBlock();
+    } else if (event.keyCode == 38) {
+      let obj = readObject(mainBlockId);
+      let newShape = rotateShape(obj.shape);
+      let validRot = true;
+      for (let i = 0; i < newShape.length; i++) {
+        for (let j = 0; j < newShape[i].length; j++) {
+          if (newShape[i][j] == 1) {
+            if (obj.x + i < 0 || obj.x + i >= cw / tileSize || obj.y + j >= ch / tileSize) {
+              validRot = false;
+              break;
+            }
           }
         }
       }
-    }
-    if (validRot) {
-      obj.shape = newShape;
-      writeObject(mainBlockId, obj);
+      if (validRot) {
+        obj.shape = newShape;
+        writeObject(mainBlockId, obj);
+      }
     }
   }
 });
 
-// TODO: Game Over, Fix Lines
+// TODO: Fix Lines, Levels
