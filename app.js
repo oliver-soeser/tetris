@@ -171,6 +171,7 @@ function startGame() {
   gameOver = document.getElementById("game-over");
   gameOver.innerHTML = "";
   isGameOver = false;
+  score = 0;
   newMainBlock();
   dropIntv = setInterval(dropMainBlock, 1000 * 0.75);
 }
@@ -244,9 +245,9 @@ function checkPossibleMoveY(x, y, shape) {
   }
   for (let k = 0; k < objects.length; k++) {
     if (k == mainBlockId) {
-      for (let i = 0; i < objects[k].shape.length; i++) {
-        for (let j = 0; j < objects[k].shape[i].length; j++) {
-          if (objects[k].shape[i][j] == 1) {
+      for (let i = 0; i < shape.length; i++) {
+        for (let j = 0; j < shape[i].length; j++) {
+          if (shape[i][j] == 1) {
             cmaskB[objects[k].x + i][objects[k].y + j + 1] = 1;
           }
         }
@@ -360,7 +361,7 @@ document.addEventListener("keydown", function (event) {
           }
         }
       }
-      if (validRot) {
+      if (checkPossibleMoveY(obj.x, obj.y, newShape) && validRot) {
         obj.shape = newShape;
         writeObject(mainBlockId, obj);
       }
@@ -368,4 +369,4 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
-// TODO: Fix Lines, Levels
+// TODO: Fix Lines, Levels, Fix Rotation
