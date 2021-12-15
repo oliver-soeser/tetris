@@ -1,9 +1,9 @@
-const tileSize = 48;
+const tileSize = 36;
 let canvas = null;
 let ctx = null;
 
-cw = 672;
-ch = 864-48;
+cw = 10*tileSize;
+ch = 20*tileSize;
 
 stdColor = "#222222";
 
@@ -252,6 +252,53 @@ function checkPossibleMoveY(x, y, shape) {
   return true;
 }
 
+function checkPossibleMoveX(move) {
+  let cmaskA = [];
+  for (let i = 0; i < cw / tileSize; i++) {
+    cmaskA[i] = [];
+    for (let j = 0; j < ch / tileSize; j++) {
+      cmaskA[i][j] = 0;
+    }
+  }
+  for (let k = 0; k < objects.length; k++) {
+    if (k != mainBlockId) {
+      for (let i = 0; i < objects[k].shape.length; i++) {
+        for (let j = 0; j < objects[k].shape[i].length; j++) {
+          if (objects[k].shape[i][j] == 1) {
+            cmaskA[objects[k].x + i][objects[k].y + j] = 1;
+          }
+        }
+      }
+    }
+  }
+  let cmaskB = [];
+  for (let i = 0; i < cw / tileSize; i++) {
+    cmaskB[i] = [];
+    for (let j = 0; j < ch / tileSize; j++) {
+      cmaskB[i][j] = 0;
+    }
+  }
+  for (let k = 0; k < objects.length; k++) {
+    if (k == mainBlockId) {
+      for (let i = 0; i < objects[k].shape.length; i++) {
+        for (let j = 0; j < objects[k].shape[i].length; j++) {
+          if (objects[k].shape[i][j] == 1) {
+            cmaskB[objects[k].x + i + move][objects[k].y + j] = 1;
+          }
+        }
+      }
+    }
+  }
+  for (let i = 0; i < cw / tileSize; i++) {
+    for (let j = 0; j < ch / tileSize; j++) {
+      if (cmaskA[i][j] == 1 && cmaskB[i][j] == 1) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 document.addEventListener("keydown", function (event) {
   if (event.keyCode == 37) {
     let obj = readObject(mainBlockId);
@@ -265,7 +312,7 @@ document.addEventListener("keydown", function (event) {
         }
       }
     }
-    if (obj.x+lowestShapeX > 0) {
+    if (obj.x+lowestShapeX > 0 && checkPossibleMoveX(-1)) {
       obj.x -= 1;
       writeObject(mainBlockId, obj);
     }
@@ -281,7 +328,7 @@ document.addEventListener("keydown", function (event) {
         }
       }
     }
-    if (obj.x+highestShapeX < cw / tileSize - 1) {
+    if (obj.x+highestShapeX < cw / tileSize - 1 && checkPossibleMoveX(1)) {
       obj.x += 1;
       writeObject(mainBlockId, obj);
     }
@@ -307,3 +354,5 @@ document.addEventListener("keydown", function (event) {
     }
   }
 });
+
+// TODO: Game Over, Fix Lines
