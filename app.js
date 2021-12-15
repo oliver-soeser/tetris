@@ -213,11 +213,13 @@ function checkPossibleMoveY(x, y, shape) {
       cmaskA[i][j] = 0;
     }
   }
-  for (let k = 0; k < objects.length - 1; k++) {
-    for (let ki = 0; ki < objects[k].shape.length; ki++) {
-      for (let kj = 0; kj < objects[k].shape[ki].length; kj++) {
-        if (objects[k].shape[ki][kj] == 1) {
-          cmaskA[objects[k].x + ki, objects[k].y + kj] = 1;
+  for (let k = 0; k < objects.length; k++) {
+    if (k != mainBlockId) {
+      for (let i = 0; i < objects[k].shape.length; i++) {
+        for (let j = 0; j < objects[k].shape[i].length; j++) {
+          if (objects[k].shape[i][j] == 1) {
+            cmaskA[objects[k].x + i][objects[k].y + j] = 1;
+          }
         }
       }
     }
@@ -229,15 +231,17 @@ function checkPossibleMoveY(x, y, shape) {
       cmaskB[i][j] = 0;
     }
   }
-  for (let i = 0; i < shape.length; i++) {
-    for (let j = 0; j < shape[i].length; j++) {
-      if (shape[i][j] == 1) {
-        cmaskB[x + i][y + j] = 1;
+  for (let k = 0; k < objects.length; k++) {
+    if (k == mainBlockId) {
+      for (let i = 0; i < objects[k].shape.length; i++) {
+        for (let j = 0; j < objects[k].shape[i].length; j++) {
+          if (objects[k].shape[i][j] == 1) {
+            cmaskB[objects[k].x + i][objects[k].y + j + 1] = 1;
+          }
+        }
       }
     }
   }
-  console.log(cmaskA);
-  console.log(cmaskB);
   for (let i = 0; i < cw / tileSize; i++) {
     for (let j = 0; j < ch / tileSize; j++) {
       if (cmaskA[i][j] == 1 && cmaskB[i][j] == 1) {
@@ -303,5 +307,3 @@ document.addEventListener("keydown", function (event) {
     }
   }
 });
-
-// TODO: Collision detection
